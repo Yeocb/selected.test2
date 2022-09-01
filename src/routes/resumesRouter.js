@@ -3,7 +3,8 @@ const resumesController = require('../controllers/resumesController');
 
 const router = express.Router();
 
-router.get("/list", resumesController.getResumeList);
+router.get("/", resumesController.getResumes);
+router.get("/:resumesId", resumesController.getResumesId);
 
 module.exports = {
     router
