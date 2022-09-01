@@ -4,10 +4,11 @@ const getResumes = async () => {
     try {
         return await AppDataSource.query(
         `SELECT
-            u.id,
+            r.id,
             u.name,
-            u.email
-            FROM users u`
+            r.updated_at
+            FROM resumes r
+            INNER JOIN users u ON r.user_id = u.id`
       );
     } catch (err) {
       const error = new Error("INVALID_DATA_INPUT");
