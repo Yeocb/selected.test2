@@ -1,31 +1,32 @@
 const { AppDataSource } = require("../models/dataSource");
+const AppError = require("../middlewares/appError");
 
-const getResumes = async () => {
+const getResumes = async (userId) => {
     try {
         return await AppDataSource.query(
         `SELECT
-           r.id,
-           u.name,
+           r.id as resumeId,
+           u.id as userId,
+           r.title as title,
            DATE_FORMAT(r.updated_at, "%Y-%c-%e") as date
            FROM resumes r
-           INNER JOIN users u ON r.user_id = u.id`
+           INNER JOIN users u ON r.user_id = u.id
+           WHERE u.id = ${userId}`
       );
     } catch (err) {
-      const error = new Error("INVALID_DATA_INPUT");
-      error.statusCode = 500;
-      throw error;
-    };
+      throw new AppError("MAIN_DOES_NOT_EXIST", 500);
     }
+  }
   
 const getResumesId = async (resumesId) => {
     try {
-        const [resume_info] = await AppDataSource.query(`
+        const [resumeInfo] = await AppDataSource.query(`
             SELECT
-            r.id,
-            u.name,
-            u.email,
-            r.title,
-            r.introduction
+            r.id as resumeId,
+            u.name as userName,
+            u.email as email,
+            r.title as title,
+            r.introduction as introduction
             FROM resumes r
             INNER JOIN users u ON r.user_id = u.id
             INNER JOIN resumes_skills rs ON rs.resumes_id = r.id
@@ -33,7 +34,7 @@ const getResumesId = async (resumesId) => {
             WHERE r.id = ${resumesId}
         `);
 
-        const resume_skill = await AppDataSource.query(`
+        const resumeSkill = await AppDataSource.query(`
             SELECT
             skill
             FROM resumes r
@@ -42,19 +43,19 @@ const getResumesId = async (resumesId) => {
             WHERE r.id = ${resumesId}
         `);
               
-        const portfolio_url = await AppDataSource.query(`
+        const linkUrls = await AppDataSource.query(`
             SELECT
-            pu.link_url
+            pu.link_url as linkUrl
             FROM portfolio_urls pu
             INNER JOIN resumes r ON r.id = pu.resumes_id
             WHERE r.id = ${resumesId}
         `);
 
-        const user_careers = await AppDataSource.query(`
+        const userCareers = await AppDataSource.query(`
             SELECT
-            DATE_FORMAT(uc.career_start, "%Y-%c-%e") as start_date,
-            DATE_FORMAT(uc.career_end, "%Y-%c-%e") as end_date,
-            uc.company_name,
+            DATE_FORMAT(uc.career_start, "%Y-%c-%e") as startDate,
+            DATE_FORMAT(uc.career_end, "%Y-%c-%e") as endDate,
+            uc.company_name as companyName,
             uc.department
             FROM user_careers uc
             INNER JOIN resumes r ON r.id = uc.resumes_id            
@@ -62,21 +63,100 @@ const getResumesId = async (resumesId) => {
         `);
 
         const data = {
-          resume_info,
-          resume_skill,
-          portfolio_url,
-          user_careers
+          resumeInfo,
+          resumeSkill,
+          linkUrls,
+          userCareers
         }
         return data;
 
+      } catch (err) {
+        throw new AppError("MAIN_DOES_NOT_EXIST", 500);
+      }
+      }
+
+const postResumesInfo = async (user_id, title, introduction) => {
+    try {
+        return await AppDataSource.query(
+        `INSERT INTO resumes(
+         user_id,
+         title,
+         introduction
+        ) VALUES (?,?,?);
+        `, 
+        [user_id, title, introduction]
+      );
     } catch (err) {
-        const error = new Error('INVALID_DATA_INPUT');
-        error.statusCode = 500;
-        throw error;
+      throw new AppError("MAIN_DOES_NOT_EXIST", 500);
     }
-}
+    }
+
+const postSkills = async (skill_id, resume_id) => {
+    try {
+        return await AppDataSource.query(
+        `INSERT INTO resumes_skills (
+         skill_id,
+         resumes_id
+        ) VALUES (?,?);
+        `, 
+        [skill_id, resume_id]
+      );
+    } catch (err) {
+      throw new AppError("MAIN_DOES_NOT_EXIST", 500);
+    }
+    }
+
+const postUrls = async (link_url, resume_id) => {
+    try {
+        return await AppDataSource.query(
+        `INSERT INTO portfolio_urls (
+         link_url,
+         resumes_id
+        ) VALUES (?,?);
+        `, 
+        [link_url, resume_id]
+      );
+    } catch (err) {
+      throw new AppError("MAIN_DOES_NOT_EXIST", 500);
+    }
+    } 
+
+const postUserCareers = async (company_name, department, career_end, career_start, resumes_id) => {
+    try {
+        return await AppDataSource.query(
+        `INSERT INTO user_careers (
+         company_name,
+         department,
+         career_end,
+         career_start,
+         resumes_id
+        ) VALUES (?,?,?,?,?);
+        `, 
+        [company_name, department, career_end, career_start, resumes_id]
+      );
+    } catch (err) {
+      throw new AppError("MAIN_DOES_NOT_EXIST", 500);
+    }
+    }; 
+
+const deleteResumesId = async (resumesId) => {
+  try {
+    return await AppDataSource.query(`
+      DELETE FROM resumes
+
+      WHERE resumes.id = ${resumesId}`
+    );
+  } catch (err) {
+    throw new AppError("MAIN_DOES_NOT_EXIST", 500);
+  }
+  };
 
   module.exports = { 
     getResumes,
-    getResumesId
+    getResumesId,
+    postResumesInfo,
+    postSkills,
+    postUrls,
+    postUserCareers,
+    deleteResumesId
   };
