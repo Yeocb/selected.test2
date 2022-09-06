@@ -11,15 +11,15 @@ const kakaoLogIn = async (kakaoToken) => {
       Authorization: `Bearer ${kakaoToken}`,
     },
   });
-
   const name = result.data.kakao_account.profile.nickname;
   const email = result.data.kakao_account.email;
   const kakaoId = result.data.id;
-
+  
   if (!name || !email || !kakaoId) throw new AppError("KEY_ERROR", 400);
 
   const isUser = await authDao.getUserByKakaoId(kakaoId);
   if (!isUser) await authDao.kakaoSignUp(name, email, kakaoId);
+
 
   const token = jwt.sign({ kakaoId, email, name }, secret);
 

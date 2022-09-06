@@ -2,20 +2,23 @@ const resumesService = require("../services/resumesService");
 const authService = require("../services/authService");
 
 const getResumes = async (req, res) => {
-        const userId = req.params;
-        console.log(userId);
-        const resumes = await resumesService.getResumes(userId);
+  const {kakaoId} = req.user;
+  const resumes = await resumesService.getResumes(kakaoId);
         res.status(200).json(resumes);
   };
 
 const getResumesId = async (req, res) => {
-        const {resumesId}= req.params;
-        const ResumesId = await resumesService.getResumesId(resumesId);
+        const {kakaoId}= req.user;
+        const ResumesId = await resumesService.getResumesId(kakaoId);
         res.status(200).json(ResumesId);
   };
 
 const postResumesInfo = async (req, res) => {
+      const {kakaoId} = req.user.kakaoId;
       const {resumesInfo} = req.body;
+      resumesInfo.kakaoId = kakaoId;
+      console.log(resumesInfo);
+
       await resumesService.postResumesInfo(resumesInfo);
       res.status(201).json({ message: "NEW_RESUME_CREATED!" });
   };
@@ -35,7 +38,7 @@ const postUrls = async (req, res) => {
 const postUserCareers = async (req, res) => {
       const { userCareers } = req.body;
       await resumesService.postUserCareers(userCareers);
-      res.status(200).json({"message":"ADD_USERCAREER!"});
+      res.status(200).json({"message":"ADD_USER_CAREER!"});
   };   
 
 const deleteResumesId = async (req, res) => {

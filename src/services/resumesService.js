@@ -1,8 +1,8 @@
 const resumesDao = require("../models/resumesDao");
 const AppError = require("../middlewares/appError");
 
-const getResumes = async (userId) => {
-    const getResumes = await resumesDao.getResumes(userId);
+const getResumes = async (kakaoId) => {
+    const getResumes = await resumesDao.getResumes(kakaoId);
     return getResumes;
     };
 
@@ -12,10 +12,11 @@ const getResumesId = async (resumesId) => {
     };
  
 const postResumesInfo = async (resumesInfo) => {
-    const user_id = resumesInfo.userId
+    const kakaoId = resumesInfo.kakaoId
     const title = resumesInfo.title
     const introduction = resumesInfo.introduction
-    const resumeInfo  = await resumesDao.postResumesInfo(user_id, title, introduction)
+    console.log(kakaoId, title,introduction)
+    const resumeInfo  = await resumesDao.postResumesInfo(kakaoId, title, introduction)
     return resumeInfo;
     };
 
