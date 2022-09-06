@@ -6,7 +6,7 @@ const getResumes = async (userId) => {
         return await AppDataSource.query(
         `SELECT
            r.id as resumeId,
-           u.id as userId,
+           u.name as name,
            r.title as title,
            DATE_FORMAT(r.updated_at, "%Y-%c-%e") as date
            FROM resumes r

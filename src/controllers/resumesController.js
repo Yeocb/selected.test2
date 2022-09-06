@@ -1,8 +1,9 @@
 const resumesService = require("../services/resumesService");
-const AppError = require("../middlewares/appError");
+const authService = require("../services/authService");
 
 const getResumes = async (req, res) => {
-        const {userId}= req.params;
+        const userId = req.params;
+        console.log(userId);
         const resumes = await resumesService.getResumes(userId);
         res.status(200).json(resumes);
   };

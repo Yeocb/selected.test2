@@ -33,9 +33,7 @@ const postUrls = async (linkUrls) => {
     for(let i=0; i<linkUrls.length; i++){
         let addLinkUrls = linkUrls[Object.keys(linkUrls)[i]];
         const linkUrl = addLinkUrls.linkUrl
-        console.log(linkUrl)
         const resumeId = addLinkUrls.resumeId
-        console.log(resumeId)
     
         const postUrl  = await resumesDao.postUrls(linkUrl,resumeId); 
         } return ;

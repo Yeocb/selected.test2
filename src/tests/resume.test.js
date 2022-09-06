@@ -23,7 +23,7 @@ describe("get resumes", () => {
 
     test("SUCCES: GET_RESUMES_LIST", async() => {
         await request(app)
-        .get("/resumes/resumesList/1")
+        .get("/resumes/List/1")
         .send({userId:1})
         .expect(200)
     })
