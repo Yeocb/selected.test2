@@ -6,7 +6,7 @@ const getResumes = async (kakaoId) => {
         return await AppDataSource.query(
         `SELECT
            r.id as resumeId,
-           u.name as name,
+           u.name as userName,
            r.title as title,
            DATE_FORMAT(r.updated_at, "%Y-%c-%e") as date
            FROM resumes r
@@ -18,7 +18,7 @@ const getResumes = async (kakaoId) => {
     }
   }
   
-const getResumesId = async (kakaoId) => {
+const getResumesId = async (resumesId, kakaoId) => {
     try {
         const [resumeInfo] = await AppDataSource.query(`
             SELECT
@@ -36,12 +36,12 @@ const getResumesId = async (kakaoId) => {
 
         const resumeSkill = await AppDataSource.query(`
             SELECT
-            skill
+            skill AS skillId
             FROM resumes r
             INNER JOIN resumes_skills rs ON rs.resumes_id = r.id
             INNER JOIN skills s ON s.id = rs.skill_id
             INNER JOIN users u ON r.user_id = u.id         
-            WHERE u.kakao_id = ${kakaoId}
+            WHERE r.id = ${resumesId}
         `);
               
         const linkUrls = await AppDataSource.query(`
@@ -50,7 +50,7 @@ const getResumesId = async (kakaoId) => {
             FROM portfolio_urls pu
             INNER JOIN resumes r ON r.id = pu.resumes_id
             INNER JOIN users u ON r.user_id = u.id         
-            WHERE u.kakao_id = ${kakaoId}
+            WHERE r.id = ${resumesId}
         `);
 
         const userCareers = await AppDataSource.query(`
@@ -62,7 +62,7 @@ const getResumesId = async (kakaoId) => {
             FROM user_careers uc
             INNER JOIN resumes r ON r.id = uc.resumes_id            
             INNER JOIN users u ON r.user_id = u.id         
-            WHERE u.kakao_id = ${kakaoId}
+            WHERE r.id = ${resumesId}
         `);
 
         const data = {
@@ -82,9 +82,9 @@ const postResumesInfo = async (kakaoId, title, introduction) => {
     try {
         return await AppDataSource.query(
         `INSERT INTO resumes (
-         user_id,
-         title,
-         introduction
+            user_id,
+            title,
+            introduction
         ) VALUES ((SELECT id 
                   FROM users u
                   WHERE u.kakao_id = ? ),?,?);
@@ -97,13 +97,14 @@ const postResumesInfo = async (kakaoId, title, introduction) => {
 
 const postSkills = async (skill_id, resume_id) => {
     try {
-        return await AppDataSource.query(
-        `INSERT INTO resumes_skills (
+      //console.log(skill_id);
+      //console.log(resume_id);
+        return await AppDataSource.query(`
+        INSERT INTO resumes_skills (
          skill_id,
          resumes_id
-        ) VALUES (?,?);
-        `, 
-        [skill_id, resume_id]
+        ) VALUES (?,?)
+        `, [skill_id, resume_id]
       );
     } catch (err) {
       throw new AppError("MAIN_DOES_NOT_EXIST", 500);
@@ -154,6 +155,22 @@ const deleteResumesId = async (resumesId) => {
   }
   };
 
+const getResumesIdByUserId = async (kakaoId) => {
+  try {
+    const [resumeId] = await AppDataSource.query(`
+      SELECT
+        resumes.id
+      FROM resumes
+      INNER JOIN users ON users.id = resumes.user_id
+      WHERE users.kakao_id = ${kakaoId}
+    `)
+
+    return resumeId;
+  } catch (err) {
+    throw new AppError("MAIN_DOES_NOT_EXIST", 500);
+  }
+}
+
   module.exports = { 
     getResumes,
     getResumesId,
@@ -161,5 +178,6 @@ const deleteResumesId = async (resumesId) => {
     postSkills,
     postUrls,
     postUserCareers,
-    deleteResumesId
+    deleteResumesId,
+    getResumesIdByUserId
   };

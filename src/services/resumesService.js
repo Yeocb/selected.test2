@@ -6,8 +6,8 @@ const getResumes = async (kakaoId) => {
     return getResumes;
     };
 
-const getResumesId = async (resumesId) => {
-    const getResumesId = await resumesDao.getResumesId(resumesId);   
+const getResumesId = async (resumesId, kakaoId) => {
+    const getResumesId = await resumesDao.getResumesId(resumesId, kakaoId);   
     return getResumesId;
     };
  
@@ -20,15 +20,20 @@ const postResumesInfo = async (resumesInfo) => {
     return resumeInfo;
     };
 
-const postSkills = async (resumesSkill) => {
-    for(let i=0; i<resumesSkill.length; i++){
-        let resumesAddSkills = resumesSkill[Object.keys(resumesSkill)[i]];
-        const skill = resumesAddSkills.skill
-        const resumeId = resumesAddSkills.resumeId
-    
-        const postSkill  = await resumesDao.postSkills(skill,resumeId); 
-        } return ;
-    };
+const postSkills = async (resumesSkill, kakaoId) => {
+    if(!kakaoId) kakaoId = '123'
+    const resumesId = await resumesDao.getResumesIdByUserId(kakaoId);
+    for(let i=0; i< resumesSkill.length; i++){
+       let skill = resumesSkill[i].skillId;
+        console.log(skill);
+        console.log(resumesId.id);
+        await resumesDao.postSkills(skill, resumesId.id); 
+    }
+    //console.log(resumesId);
+    //console.log(resumesSkill);
+    //const skill = resumesSkill.skillId;
+    //console.log(skill)
+};
 
 const postUrls = async (linkUrls) => {
     for(let i=0; i<linkUrls.length; i++){
@@ -42,6 +47,7 @@ const postUrls = async (linkUrls) => {
      
 const postUserCareers = async (userCareers) => {
     for(let i=0; i<userCareers.length; i++){
+        console.log(userCareers)
         let addUserCareers = userCareers[Object.keys(userCareers)[i]];
         const companyName = addUserCareers.companyName
         const department = addUserCareers.department

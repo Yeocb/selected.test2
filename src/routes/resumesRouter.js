@@ -5,13 +5,13 @@ const auth = require("../middlewares/auth");
 
 const router = express.Router();
 //auth.validateToken,
-router.get("/list",auth.validateToken, errorHandler(resumesController.getResumes));
-router.get("/:resumesid",auth.validateToken, errorHandler(resumesController.getResumesId));
-router.post("/addresume",auth.validateToken, errorHandler(resumesController.postResumesInfo));
-router.post("/addskill",auth.validateToken, errorHandler(resumesController.postSkills));
-router.post("/addurl",auth.validateToken, errorHandler(resumesController.postUrls));
-router.post("/addusercareer",auth.validateToken, errorHandler(resumesController.postUserCareers));
-router.delete("/:resumesid",auth.validateToken, errorHandler(resumesController.deleteResumesId));
+router.get("/list", errorHandler(resumesController.getResumes));
+router.get("/:resumesid", errorHandler(resumesController.getResumesId));
+router.post("/addresume", errorHandler(resumesController.postResumesInfo));
+router.post("/addskill", errorHandler(resumesController.postSkills));
+router.post("/addurl", errorHandler(resumesController.postUrls));
+router.post("/addusercareer", errorHandler(resumesController.postUserCareers));
+router.delete("/:resumesid", errorHandler(resumesController.deleteResumesId));
 
 module.exports = {
     router

@@ -5,18 +5,15 @@ const secretKey = process.env.TOKEN_SECRET;
 const validateToken = async (req, res, next) => {
 
   try {
-    const token = await req.header("Authorization");
+
+    const token = await req.header("authorization");
     const token1 = String(JSON.parse(token))
-    //console.log(token1)
+    console.log(token);
 
     const decoded = await jwt.verify(token1, secretKey);
-    //console.log(decoded)
 
-    const kakaoId = decoded.kakaoId
-   // console.log("kakaoId", kakaoId)
-
-    req.user = decoded;
-    console.log(req.user);
+    req.kakaoId = decoded;
+    //console.log(req.user);
 
     next();
   } catch (err) {
